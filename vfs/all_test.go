@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"modernc.org/sqlite"
+	"github.com/cdvelop/sqlite-wasm"
 )
 
 func E(err error) string {

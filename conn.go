@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package sqlite // import "modernc.org/sqlite"
+package sqlite // import "github.com/cdvelop/sqlite-wasm"
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 
 	"modernc.org/libc"
 	"modernc.org/libc/sys/types"
-	sqlite3 "modernc.org/sqlite/lib"
+	sqlite3 "github.com/cdvelop/sqlite-wasm/lib"
 )
 
 type conn struct {
