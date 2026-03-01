@@ -11,7 +11,7 @@ import (
 
 	"modernc.org/libc"
 	"modernc.org/libc/sys/types"
-	libsqlite3 "modernc.org/sqlite/lib"
+	libsqlite3 "github.com/cdvelop/sqlite-wasm/lib"
 )
 
 var (
