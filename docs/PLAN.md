@@ -51,8 +51,14 @@ The full migration procedure is in [8_MIGRATION.md](8_MIGRATION.md).
 
 | File | Phase | Goal | Status |
 |------|-------|------|--------|
-| [0_MODULE_CLEANUP.md](0_MODULE_CLEANUP.md) | 0 | Fix `go.mod`; remove package conflict; `go build ./...` passes | 🔲 Pending |
+| [0_MODULE_CLEANUP.md](0_MODULE_CLEANUP.md) | 0 | Fix `go.mod`; remove package conflict; `go build ./...` passes | ✅ Done |
 | [1_DRIVER_ORGANIZE.md](1_DRIVER_ORGANIZE.md) | 1 | Move all engine source into `driver/`; rename packages; update imports | 🔲 Pending |
+| ↳ [1A_MOVE_ROOT.md](1A_MOVE_ROOT.md) | 1A | `git mv *.go driver/` + rename `mutex.go` — commit ~20 files | 🔲 Pending |
+| ↳ [1B_MOVE_LIB.md](1B_MOVE_LIB.md) | 1B | `git mv lib/ driver/lib/` — commit ~48 files | 🔲 Pending |
+| ↳ [1C_MOVE_VFS_VTAB.md](1C_MOVE_VFS_VTAB.md) | 1C | `git mv vfs/ driver/vfs/` + `vtab/` — commit ~26 files | 🔲 Pending |
+| ↳ [1D_RENAME_PKG.md](1D_RENAME_PKG.md) | 1D | `sed` `package sqlite` → `package driver` in `driver/*.go` | 🔲 Pending |
+| ↳ [1E_FIX_IMPORTS.md](1E_FIX_IMPORTS.md) | 1E | Fix all internal import paths under `driver/` | 🔲 Pending |
+| ↳ [1F_BUILD_VERIFY.md](1F_BUILD_VERIFY.md) | 1F | Create `driver/driver.go` + `go build ./...` + `gotest` | 🔲 Pending |
 | [2_TESTS_PASS.md](2_TESTS_PASS.md) | 2 | Existing tests pass with new `driver/` structure (`gotest`) | 🔲 Pending |
 | [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | 3 | Move all tests to `tests/`; add build tags; `gotest` passes | 🔲 Pending |
 | [4_TESTS_DOMAIN.md](4_TESTS_DOMAIN.md) | 4 | Subdivide tests by domain (conn, stmt, vfs, vtab, backup); coverage ≥ 90% | 🔲 Pending |
