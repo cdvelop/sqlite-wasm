@@ -1,6 +1,6 @@
 # Phase 1F: Create `driver/driver.go` + Build Verification
 
-> **Master Plan:** [REFACTOR_PLAN.md](REFACTOR_PLAN.md)
+> **Master Plan:** [PLAN.md](PLAN.md)
 > **Phase index:** [1_DRIVER_ORGANIZE.md](1_DRIVER_ORGANIZE.md)
 > **Previous:** [1E_FIX_IMPORTS.md](1E_FIX_IMPORTS.md) ← must be ✅ committed
 > **Next:** [2_TESTS_PASS.md](2_TESTS_PASS.md)
@@ -52,11 +52,6 @@ git add driver/driver.go
 git commit -m "add(1f): driver/driver.go; go build ./... and gotest pass"
 ```
 
-### Step 5 — Mark Phase 1 complete in REFACTOR_PLAN.md
-
-Update the Phase 1 row status in [REFACTOR_PLAN.md](REFACTOR_PLAN.md) from
-`🔲 Pending` to `✅ Done`.
-
 ---
 
 ## Acceptance Criteria
@@ -67,4 +62,23 @@ Update the Phase 1 row status in [REFACTOR_PLAN.md](REFACTOR_PLAN.md) from
 | `go build ./...` exits with code 0 | 🔲 |
 | `gotest` passes with no failures | 🔲 |
 | Commit created | 🔲 |
-| `REFACTOR_PLAN.md` Phase 1 row marked ✅ | 🔲 |
+
+---
+
+## ⛔ DISPATCH D-3 COMPLETE — STOP HERE
+
+This is the **last phase of Dispatch D-3**. Your task is complete.
+
+**Do NOT open, read, or execute `2_TESTS_PASS.md` or any subsequent file.**
+
+Report the following to the user and wait for further instructions:
+
+```
+✅ D-3 done. Commit created:
+  - add(1f): driver/driver.go; go build ./... and gotest pass
+
+gotest output:
+  <paste full gotest output here>
+
+Awaiting authorization for Dispatch D-4 (2_TESTS_PASS.md).
+```

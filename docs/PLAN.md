@@ -47,6 +47,27 @@ The full migration procedure is in [8_MIGRATION.md](8_MIGRATION.md).
 
 ---
 
+## Dispatch Strategy
+
+> **IMPORTANT FOR JULES:** Execute **only** the phases listed in the current dispatch.
+> After completing the last phase of your dispatch, **stop immediately** and report
+> results. Do NOT read ahead or execute phases from a future dispatch.
+
+| Dispatch | Phases | Files to follow | Nature | Human gate |
+|----------|--------|-----------------|--------|------------|
+| **D-1** | 1A → 1B → 1C | [1A](1A_MOVE_ROOT.md) · [1B](1B_MOVE_LIB.md) · [1C](1C_MOVE_VFS_VTAB.md) | Pure `git mv` — no content changes | ✅ Review file counts |
+| **D-2** | 1D → 1E | [1D](1D_RENAME_PKG.md) · [1E](1E_FIX_IMPORTS.md) | `sed` renames — package + imports | ✅ Review grep output |
+| **D-3** | 1F | [1F](1F_BUILD_VERIFY.md) | `go build ./...` + `gotest` — first green build | ✅ Review test output |
+| **D-4** | 2 | [2_TESTS_PASS.md](2_TESTS_PASS.md) | Tests pass in new structure | ✅ Review coverage |
+| **D-5** | 3 | [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | Move tests to `tests/` | ✅ Review structure |
+| **D-6** | 4 | [4_TESTS_DOMAIN.md](4_TESTS_DOMAIN.md) | Domain test split; coverage ≥ 90% | ✅ Review coverage |
+| **D-7** | 5 | [5_DEPS_SMALL.md](5_DEPS_SMALL.md) | Inline small modernc deps | ✅ Review go.mod |
+| **D-8** | 6 | [6_DEPS_LIBC.md](6_DEPS_LIBC.md) | Inline modernc libc | ✅ Review go.mod |
+| **D-9** | 7 | [7_DEPS_CLEAN.md](7_DEPS_CLEAN.md) | Clean go.mod to tinywasm only | ✅ Review go.mod |
+| **D-10** | 8 | [8_MIGRATION.md](8_MIGRATION.md) | Migration script + dry-run | ✅ Review script |
+
+---
+
 ## Phases
 
 | File | Phase | Goal | Status |

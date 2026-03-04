@@ -1,6 +1,6 @@
 # Phase 1: Organize All Engine Source into `driver/`
 
-> **Master Plan:** [REFACTOR_PLAN.md](REFACTOR_PLAN.md)
+> **Master Plan:** [PLAN.md](PLAN.md)
 > **Previous:** [0_MODULE_CLEANUP.md](0_MODULE_CLEANUP.md) ← must be ✅ complete
 > **Next:** [2_TESTS_PASS.md](2_TESTS_PASS.md)
 

@@ -1,6 +1,6 @@
 # Phase 1E: Fix Internal Import Paths
 
-> **Master Plan:** [REFACTOR_PLAN.md](REFACTOR_PLAN.md)
+> **Master Plan:** [PLAN.md](PLAN.md)
 > **Phase index:** [1_DRIVER_ORGANIZE.md](1_DRIVER_ORGANIZE.md)
 > **Previous:** [1D_RENAME_PKG.md](1D_RENAME_PKG.md) ← must be ✅ committed
 > **Next:** [1F_BUILD_VERIFY.md](1F_BUILD_VERIFY.md)
@@ -59,3 +59,24 @@ git commit -m "fix(1e): update internal import paths to driver/lib, driver/vfs, 
 | No `cdvelop/sqlite-wasm/vfs` (without `driver/`) in any `.go` file | 🔲 |
 | No `cdvelop/sqlite-wasm/vtab` (without `driver/`) in any `.go` file | 🔲 |
 | Commit created | 🔲 |
+
+---
+
+## ⛔ DISPATCH D-2 COMPLETE — STOP HERE
+
+This is the **last phase of Dispatch D-2**. Your task is complete.
+
+**Do NOT open, read, or execute `1F_BUILD_VERIFY.md` or any subsequent file.**
+
+Report the following to the user and wait for further instructions:
+
+```
+✅ D-2 done. Commits created:
+  - rename(1d): package sqlite → package driver in driver/*.go
+  - fix(1e): update internal import paths to driver/lib, driver/vfs, driver/vtab
+
+Verification output from Step 4 grep:
+  <paste grep output here — expected: empty / no matches>
+
+Awaiting authorization for Dispatch D-3 (1F_BUILD_VERIFY.md).
+```

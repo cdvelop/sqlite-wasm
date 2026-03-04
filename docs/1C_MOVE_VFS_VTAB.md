@@ -1,6 +1,6 @@
 # Phase 1C: Move `vfs/` and `vtab/` into `driver/`
 
-> **Master Plan:** [REFACTOR_PLAN.md](REFACTOR_PLAN.md)
+> **Master Plan:** [PLAN.md](PLAN.md)
 > **Phase index:** [1_DRIVER_ORGANIZE.md](1_DRIVER_ORGANIZE.md)
 > **Previous:** [1B_MOVE_LIB.md](1B_MOVE_LIB.md) ← must be ✅ committed
 > **Next:** [1D_RENAME_PKG.md](1D_RENAME_PKG.md)
@@ -55,3 +55,28 @@ git commit -m "move(1c): vfs/ + vtab/ → driver/"
 | `vfs/` and `vtab/` no longer exist at repo root | 🔲 |
 | No file content changed (package names and imports unchanged) | 🔲 |
 | Commit created | 🔲 |
+
+---
+
+## ⛔ DISPATCH D-1 COMPLETE — STOP HERE
+
+This is the **last phase of Dispatch D-1**. Your task is complete.
+
+**Do NOT open, read, or execute `1D_RENAME_PKG.md` or any subsequent file.**
+
+Report the following to the user and wait for further instructions:
+
+```
+✅ D-1 done. Commits created:
+  - move(1a): root *.go → driver/
+  - move(1b): lib/ → driver/lib/
+  - move(1c): vfs/ + vtab/ → driver/
+
+File counts:
+  driver/*.go   → <N> files
+  driver/lib/   → <N> files
+  driver/vfs/   → <N> files
+  driver/vtab/  → <N> files
+
+Awaiting authorization for Dispatch D-2 (1D_RENAME_PKG.md).
+```

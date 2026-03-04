@@ -1,6 +1,6 @@
 # Phase 1B: Move `lib/` into `driver/lib/`
 
-> **Master Plan:** [REFACTOR_PLAN.md](REFACTOR_PLAN.md)
+> **Master Plan:** [PLAN.md](PLAN.md)
 > **Phase index:** [1_DRIVER_ORGANIZE.md](1_DRIVER_ORGANIZE.md)
 > **Previous:** [1A_MOVE_ROOT.md](1A_MOVE_ROOT.md) ← must be ✅ committed
 > **Next:** [1C_MOVE_VFS_VTAB.md](1C_MOVE_VFS_VTAB.md)
