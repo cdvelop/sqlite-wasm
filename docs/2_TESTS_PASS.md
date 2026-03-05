@@ -1,7 +1,7 @@
 # Phase 2: Tests Pass with New `driver/` Structure
 
 > **Master Plan:** [PLAN.md](PLAN.md)
-> **Previous:** [1_DRIVER_ORGANIZE.md](1_DRIVER_ORGANIZE.md) ← must be complete
+> **Previous:** [1_REORGANIZE.md](1_REORGANIZE.md) ← must be ✅ complete
 > **Next:** [3_TESTS_MOVE.md](3_TESTS_MOVE.md)
 
 ## Prerequisites
@@ -84,6 +84,25 @@ All inherited tests must pass. Coverage percentage is not a target for this phas
 
 | Criterion | Check |
 |-----------|-------|
-| `gotest` exits with code 0 | ✅ |
-| No test failures introduced by the reorganization | ✅ |
-| No test files removed (only fixed) | ✅ |
+| `gotest` exits with code 0 | 🔲 |
+| No test failures introduced by the reorganization | 🔲 |
+| No test files removed (only fixed) | 🔲 |
+
+---
+
+## ⛔ DISPATCH D-2 COMPLETE — STOP HERE
+
+This is the **last phase of Dispatch D-2**. Your task is complete.
+
+**Do NOT open, read, or execute `3_TESTS_MOVE.md` or any subsequent file.**
+
+Report the following to the user and wait for further instructions:
+
+```
+✅ D-2 done. gotest passes with no failures.
+
+gotest output:
+  <paste full gotest output here>
+
+Awaiting authorization for Dispatch D-3 (3_TESTS_MOVE.md).
+```
