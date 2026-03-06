@@ -71,8 +71,8 @@ The full migration procedure is in [8_MIGRATION.md](8_MIGRATION.md).
 | File | Phase | Goal | Status |
 |------|-------|------|--------|
 | [0_MODULE_CLEANUP.md](0_MODULE_CLEANUP.md) | 0 | Fix `go.mod`; remove package conflict; `go build ./...` passes | ✅ Done |
-| [1_REORGANIZE.md](1_REORGANIZE.md) | 1 | **Single script:** move all engine source into `driver/`; rename packages; fix imports; verify build | 🔲 Pending |
-| [2_TESTS_PASS.md](2_TESTS_PASS.md) | 2 | Existing tests pass with new `driver/` structure (`gotest`) | 🔲 Pending |
+| [1_REORGANIZE.md](1_REORGANIZE.md) | 1 | **Single script:** move all engine source into `driver/`; rename packages; fix imports; verify build | ✅ Done |
+| [2_TESTS_PASS.md](2_TESTS_PASS.md) | 2 | Existing tests pass with new `driver/` structure (`gotest`) | ✅ Done |
 | [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | 3 | Move all tests to `tests/`; add build tags; `gotest` passes | 🔲 Pending |
 | [4_TESTS_DOMAIN.md](4_TESTS_DOMAIN.md) | 4 | Subdivide tests by domain (conn, stmt, vfs, vtab, backup); coverage ≥ 90% | 🔲 Pending |
 | [5_DEPS_SMALL.md](5_DEPS_SMALL.md) | 5 | Inline `modernc.org/mathutil`, `modernc.org/fileutil`, `modernc.org/memory` into `driver/` | 🔲 Pending |
