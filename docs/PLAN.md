@@ -23,7 +23,7 @@ The end goal is to finalize the self-contained `driver/` package so it can be co
 
 | File | Phase | Goal | Status |
 |------|-------|------|--------|
-| [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | 3 | Move all tests to `tests/`; add build tags; `go test ./...` passes. **Partially done:** `tests/setup_test.go` and `tests/vfs_test.go` already exist. Complete remaining test file moves. | 🔶 In Progress |
+| [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | 3 | Move all tests to `tests/`; add build tags; `go test ./...` passes. **Partially done:** `tests/setup_test.go` and `tests/vfs_test.go` already exist. Complete remaining test file moves. | ✅ Complete |
 | [4_TESTS_DOMAIN.md](4_TESTS_DOMAIN.md) | 4 | Subdivide tests by domain (conn, stmt, vfs, vtab, backup); coverage ≥ 90% | 🔲 Pending |
 | [5_DEPS_SMALL.md](5_DEPS_SMALL.md) | 5 | Inline `modernc.org/mathutil` and `modernc.org/memory` into `driver/mathutil/` and `driver/memory/`. `modernc.org/fileutil` is NOT in `go.mod` — skip it. | 🔲 Pending |
 | [6_DEPS_LIBC.md](6_DEPS_LIBC.md) | 6 | Inline `modernc.org/libc` (including `libc/sys/types`) into `driver/libc/` — one subdirectory level only, no deeper nesting. | 🔲 Pending |
