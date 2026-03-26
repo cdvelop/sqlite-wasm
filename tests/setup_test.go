@@ -1,3 +1,5 @@
+//go:build !wasm
+
 // Package driver_test contains integration tests for the driver/ package.
 package driver_test
 

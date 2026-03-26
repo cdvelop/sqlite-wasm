@@ -4,18 +4,18 @@
 
 The end goal is to finalize the self-contained `driver/` package so it can be copied verbatim into `tinywasm/sqlite/driver/`. The `go.mod` must end up 100% clean, meaning it has zero `modernc.org/*` or other third-party dependencies outside of the Go standard library and `tinywasm/*` packages.
 
-> **IMPORTANT FOR JULES:** Execute only the phases listed below in order. For each phase, read its corresponding markdown document for detailed instructions. After completing a phase, stop immediately, run `go test ./...` to ensure all tests pass, and report results. Do NOT read ahead or execute phases from a future dispatch.
+> **IMPORTANT FOR JULES:** Execute all phases listed below in order. For each phase, read its corresponding markdown document for detailed instructions. After completing a phase, run `go test ./...` to ensure stability and then proceed immediately to the next phase. Completion is reached once Phase 8 is successfully finished.
 
-## Dispatch Strategy
+## Execution Roadmap
 
-| Dispatch | Script / File | Nature | Human gate |
-|----------|---------------|--------|------------|
-| **D-3** | [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | Move tests to `tests/` (partially done — `setup_test.go` and `vfs_test.go` exist) | ✅ Review structure |
-| **D-4** | [4_TESTS_DOMAIN.md](4_TESTS_DOMAIN.md) | Domain test split; coverage ≥ 90% | ✅ Review coverage |
-| **D-5** | [5_DEPS_SMALL.md](5_DEPS_SMALL.md) | Inline `modernc.org/mathutil` and `modernc.org/memory` into `driver/` (one subdirectory allowed) | ✅ Review go.mod |
-| **D-6** | [6_DEPS_LIBC.md](6_DEPS_LIBC.md) | Inline `modernc.org/libc` into `driver/libc/` (one subdirectory — no deeper nesting) | ✅ Review go.mod |
-| **D-7** | [7_DEPS_CLEAN.md](7_DEPS_CLEAN.md) | Clean remaining deps (`google/uuid`, `go-humanize`, `go-isatty`, `go-strftime`, `bigfft`, `golang.org/x/exp`) | ✅ Review go.mod |
-| **D-8** | [8_MIGRATION.md](8_MIGRATION.md) | Migration script + dry-run | ✅ Review script |
+| Phase | Script / File | Nature | Target |
+|-------|---------------|--------|--------|
+| **3** | [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | Move tests to `tests/` (DONE) | ✅ Tests in `tests/` |
+| **4** | [4_TESTS_DOMAIN.md](4_TESTS_DOMAIN.md) | Domain test split; coverage ≥ 90% | ✅ Coverage ≥ 90% |
+| **5** | [5_DEPS_SMALL.md](5_DEPS_SMALL.md) | Inline `modernc.org/mathutil` and `modernc.org/memory` | ✅ Localized deps |
+| **6** | [6_DEPS_LIBC.md](6_DEPS_LIBC.md) | Inline `modernc.org/libc` into `driver/libc/` | ✅ Clean libc |
+| **7** | [7_DEPS_CLEAN.md](7_DEPS_CLEAN.md) | Remove remaining `modernc.org` and other deps | ✅ standard lib only |
+| **8** | [8_MIGRATION.md](8_MIGRATION.md) | Migration script + dry-run | ✅ Deployment ready |
 
 ---
 
@@ -23,7 +23,7 @@ The end goal is to finalize the self-contained `driver/` package so it can be co
 
 | File | Phase | Goal | Status |
 |------|-------|------|--------|
-| [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | 3 | Move all tests to `tests/`; add build tags; `go test ./...` passes. **Partially done:** `tests/setup_test.go` and `tests/vfs_test.go` already exist. Complete remaining test file moves. | 🔶 In Progress |
+| [3_TESTS_MOVE.md](3_TESTS_MOVE.md) | 3 | Move all tests to `tests/`; add build tags; `go test ./...` passes. **Partially done:** `tests/setup_test.go` and `tests/vfs_test.go` already exist. Complete remaining test file moves. | ✅ Complete |
 | [4_TESTS_DOMAIN.md](4_TESTS_DOMAIN.md) | 4 | Subdivide tests by domain (conn, stmt, vfs, vtab, backup); coverage ≥ 90% | 🔲 Pending |
 | [5_DEPS_SMALL.md](5_DEPS_SMALL.md) | 5 | Inline `modernc.org/mathutil` and `modernc.org/memory` into `driver/mathutil/` and `driver/memory/`. `modernc.org/fileutil` is NOT in `go.mod` — skip it. | 🔲 Pending |
 | [6_DEPS_LIBC.md](6_DEPS_LIBC.md) | 6 | Inline `modernc.org/libc` (including `libc/sys/types`) into `driver/libc/` — one subdirectory level only, no deeper nesting. | 🔲 Pending |
