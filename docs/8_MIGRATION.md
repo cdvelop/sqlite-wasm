@@ -6,7 +6,6 @@
 ## Prerequisites
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -82,7 +81,7 @@ echo "==> Next steps:"
 echo "    1. cd $DEST_REPO"
 echo "    2. go mod tidy"
 echo "    3. go build ./..."
-echo "    4. gotest"
+echo "    4. go test ./..."
 echo "    5. Open a PR from cdvelop/sqlite-wasm to tinywasm/sqlite"
 ```
 
@@ -148,10 +147,10 @@ low-level OS dep (required by the embedded libc layer).
 Built and refined in `github.com/cdvelop/sqlite-wasm`.
 ```
 
-### Step 4 — Final `gotest` in this repo
+### Step 4 — Final `go test ./...` in this repo
 
 ```bash
-gotest
+go test ./...
 ```
 
 All tests pass, coverage ≥ 90%.
@@ -168,12 +167,12 @@ Then in `tinywasm/sqlite`:
 cd $TINYWASM_SQLITE
 go mod tidy
 go build ./...
-gotest
+go test ./...
 ```
 
 ### Step 6 — Verify in `tinywasm/sqlite`
 
-Run `gotest` in the target repo to confirm the migration works end-to-end.
+Run `go test ./...` in the target repo to confirm the migration works end-to-end.
 Jules will handle committing and pushing.
 
 ---
@@ -185,5 +184,5 @@ Jules will handle committing and pushing.
 | `scripts/migrate_to_tinywasm.sh` exists and is executable | ✅ |
 | Dry-run produces no `cdvelop/sqlite-wasm` references in output | ✅ |
 | `driver/README.md` documents the package and sub-packages | ✅ |
-| After migration, `gotest` passes in `tinywasm/sqlite` | ✅ |
+| After migration, `go test ./...` passes in `tinywasm/sqlite` | ✅ |
 | PR from `cdvelop/sqlite-wasm` → `tinywasm/sqlite` is open | ✅ |

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package vfs
+package driver_test
 
 import (
 	"database/sql"
@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	sqlite "github.com/cdvelop/sqlite-wasm/driver"
+	"github.com/cdvelop/sqlite-wasm/driver/vfs"
 )
 
 func E(err error) string {
@@ -46,7 +47,7 @@ func TestVFS(t *testing.T) {
 		}
 	}()
 
-	vfsid, fs, err := New(os.DirFS(tmpdbdir))
+	vfsid, fs, err := vfs.New(os.DirFS(tmpdbdir))
 	if err != nil {
 		t.Fatalf("unexpected failure to register new vfs, %s", err.Error())
 	}

@@ -7,7 +7,6 @@
 ## Prerequisites
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -15,6 +14,8 @@ go install github.com/tinywasm/devflow/cmd/gotest@latest
 ## Goal
 
 Eliminate `modernc.org/libc` from `go.mod` by inlining its source into `driver/libc/`.
+All `libc` files (including `libc/sys/types` sub-packages) must be placed **flat inside `driver/libc/`**.
+Do NOT create deeper nesting (e.g. `driver/libc/sys/` is forbidden).
 This is the largest and most complex step. After this phase, `go.mod` contains
 no `modernc.org/*` entries.
 
@@ -28,7 +29,7 @@ C standard library emulation in pure Go). Approach incrementally:
 1. Copy source files.
 2. Fix package declarations and internal imports.
 3. Fix compilation errors platform by platform (start with `linux/amd64`).
-4. Run `gotest` on each platform before moving to the next.
+4. Run `go test ./...` on each platform before moving to the next.
 
 > **If this phase proves too complex or time-consuming,** accept `modernc.org/libc`
 > as a remaining external dep and skip to Phase 7. Document the decision in
@@ -61,40 +62,46 @@ echo "Source: $SRC"
 ls $SRC/
 ```
 
-### Step 3 — Plan the sub-package mapping
+### Step 3 — Plan the file placement
 
-`modernc.org/libc` exports multiple sub-packages (`libc/sys/types`, `libc/sys/stat`,
-etc.). Map each to a `driver/libc/` sub-directory:
+`modernc.org/libc` uses sub-packages (`libc/sys/types`, etc.).
+All of these must be inlined **flat inside `driver/libc/`** — no deeper subdirectories.
+Keep the package declaration as-is (e.g. `package libc`); only update the import paths.
 
-| Original | Destination |
-|----------|-------------|
-| `modernc.org/libc` | `driver/libc/` |
-| `modernc.org/libc/sys/types` | `driver/libc/sys/types/` |
-| `modernc.org/libc/sys/stat` | `driver/libc/sys/stat/` |
-| *(others as needed)* | *(add as compilation requires)* |
+| Original package | Destination |
+|------------------|-------------|
+| `modernc.org/libc` | `driver/libc/` (keep `package libc`) |
+| `modernc.org/libc/sys/types` | `driver/libc/` flat (rename `package types` → `package libc` if collision-free, otherwise prefix files) |
 
 ### Step 4 — Copy and fix (linux/amd64 first)
 
 ```bash
-mkdir -p driver/libc
-cp $SRC/*.go driver/libc/
-cp $SRC/*_linux_amd64.go driver/libc/ 2>/dev/null
-rm -f driver/libc/*_test.go
+LIBC_VER=$(grep "modernc.org/libc" go.mod | awk '{print $2}')
+SRC="$(go env GOMODCACHE)/modernc.org/libc@$LIBC_VER"
+DEST="driver/libc"
 
-# Copy sub-packages selectively
-for subpkg in sys/types sys/stat; do
-    mkdir -p driver/libc/$subpkg
-    cp $SRC/$subpkg/*.go driver/libc/$subpkg/
-    rm -f driver/libc/$subpkg/*_test.go
-done
+mkdir -p $DEST
+
+# Copy root libc files into driver/libc/
+cp $SRC/*.go $DEST/
+cp $SRC/*_linux_amd64.go $DEST/ 2>/dev/null
+rm -f $DEST/*_test.go
+
+# Copy sys/types files FLAT into driver/libc/ (no sub-subdirectories)
+cp $SRC/sys/types/*.go $DEST/
+rm -f $DEST/*_test.go
+
+# Merge package declarations: sys/types files may declare 'package types'
+# Check for conflicts and rename if needed:
+grep -l "^package types" $DEST/*.go
 ```
 
-### Step 5 — Update import paths
+### Step 5 — Update import paths in `driver/` and `driver/vfs/`
 
 ```bash
-# In driver/ files: point libc imports to the inlined version
+# Point all modernc.org/libc imports to the local copy
 sed -i 's|modernc.org/libc|github.com/cdvelop/sqlite-wasm/driver/libc|g' \
-    driver/*.go driver/lib/*.go
+    driver/*.go driver/vfs/*.go driver/lib/*.go
 ```
 
 ### Step 6 — Iterative build fix
@@ -130,7 +137,7 @@ grep "modernc.org" go.mod
 ### Step 9 — Run tests
 
 ```bash
-gotest
+go test ./...
 ```
 
 Coverage must remain ≥ 90%.
@@ -156,6 +163,6 @@ If > 500 files: consider deferring to a separate dedicated effort and document
 | Criterion | Check |
 |-----------|-------|
 | `modernc.org/libc` absent from `go.mod` | ✅ |
-| `driver/libc/` exists with inlined source | ✅ |
+| `driver/libc/` exists with all inlined source (flat, no sub-subdirectories) | ✅ |
 | `go build ./...` succeeds on linux/amd64 | ✅ |
-| `gotest` passes with ≥ 90% coverage | ✅ |
+| `go test ./...` passes with ≥ 90% coverage | ✅ |
