@@ -7,7 +7,6 @@
 ## Prerequisites
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -94,7 +93,7 @@ func TestMain(m *testing.M) {
 ### Step 5 — Run tests
 
 ```bash
-gotest
+go test ./...
 ```
 
 All tests must pass from their new location.
@@ -108,4 +107,4 @@ All tests must pass from their new location.
 | `driver/` contains zero `*_test.go` files | ✅ |
 | All tests are in `tests/` | ✅ |
 | `tests/setup_test.go` exists with `TestMain` | ✅ |
-| `gotest` passes | ✅ |
+| `go test ./...` passes | ✅ |

@@ -7,7 +7,6 @@
 ## Prerequisites
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -34,10 +33,10 @@ Expected issues to fix:
 
 ## Steps
 
-### Step 1 — Run `gotest` and capture failures
+### Step 1 — Run `go test ./...` and capture failures
 
 ```bash
-gotest 2>&1 | tee /tmp/phase2_failures.txt
+go test ./... 2>&1 | tee /tmp/phase2_failures.txt
 ```
 
 ### Step 2 — Fix import paths in test files
@@ -73,7 +72,7 @@ Ensure build tags are compatible with the new package name (`driver` instead of 
 ### Step 5 — Run full test suite
 
 ```bash
-gotest
+go test ./...
 ```
 
 All inherited tests must pass. Coverage percentage is not a target for this phase.
@@ -84,7 +83,7 @@ All inherited tests must pass. Coverage percentage is not a target for this phas
 
 | Criterion | Check |
 |-----------|-------|
-| `gotest` exits with code 0 | 🔲 |
+| `go test ./...` exits with code 0 | 🔲 |
 | No test failures introduced by the reorganization | 🔲 |
 | No test files removed (only fixed) | 🔲 |
 
@@ -99,10 +98,10 @@ This is the **last phase of Dispatch D-2**. Your task is complete.
 Report the following to the user and wait for further instructions:
 
 ```
-✅ D-2 done. gotest passes with no failures.
+✅ D-2 done. go test ./... passes with no failures.
 
-gotest output:
-  <paste full gotest output here>
+go test ./... output:
+  <paste full go test ./... output here>
 
 Awaiting authorization for Dispatch D-3 (3_TESTS_MOVE.md).
 ```

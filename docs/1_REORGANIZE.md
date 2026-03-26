@@ -18,7 +18,6 @@ This entire phase is executed by running one bash script. Do NOT split it into s
 Confirm Phase 0 is complete and the module builds from the current state:
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 go build ./...
 ```
 

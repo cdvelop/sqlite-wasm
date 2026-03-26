@@ -7,7 +7,6 @@
 ## Prerequisites
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -41,7 +40,7 @@ of `driver/`. Each test file covers one area of the SQLite driver API.
 ### Step 1 — Audit current coverage
 
 ```bash
-gotest -cover ./driver/...
+go test ./... -cover ./driver/...
 ```
 
 Identify which files have low coverage. Prioritize those.
@@ -124,7 +123,7 @@ Follow the same pattern for `stmt_test.go`, `tx_test.go`, `rows_test.go`,
 ### Step 5 — Check coverage
 
 ```bash
-gotest -cover ./driver/...
+go test ./... -cover ./driver/...
 # Target: ≥ 90%
 ```
 
@@ -138,5 +137,5 @@ If below 90%, identify uncovered functions and add targeted tests.
 |-----------|-------|
 | Each domain has a dedicated test file in `tests/` | ✅ |
 | All test files have `//go:build !wasm` tag | ✅ |
-| `gotest -cover ./driver/...` reports ≥ 90% | ✅ |
-| `gotest` passes with no failures | ✅ |
+| `go test ./... -cover ./driver/...` reports ≥ 90% | ✅ |
+| `go test ./...` passes with no failures | ✅ |

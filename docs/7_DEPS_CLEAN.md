@@ -7,7 +7,6 @@
 ## Prerequisites
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -32,14 +31,13 @@ Likely candidates:
 
 | Package | Action |
 |---------|--------|
-| `github.com/google/uuid` | ❌ Remove — replace with `github.com/tinywasm/unixid` |
+| `github.com/google/uuid` | ❌ Remove — **not directly used in `driver/`**; likely dropped automatically by `go mod tidy` after Phase 6. Verify before any manual action. |
 | `github.com/dustin/go-humanize` | ❌ Remove — inline or eliminate usage |
 | `github.com/mattn/go-isatty` | ❌ Remove — inline (it's tiny) or eliminate |
 | `github.com/ncruces/go-strftime` | ❌ Remove — inline or use stdlib `time.Format` |
 | `github.com/remyoudompheng/bigfft` | ❌ Remove — inline from `modernc.org/mathutil` context |
 | `golang.org/x/exp` | ❌ Remove — replace usages with stdlib equivalents |
 | `golang.org/x/sys` | ⚠️ Evaluate — may be required for low-level OS calls; keep if unavoidable |
-| `github.com/google/pprof` | ❌ Remove — only a dev-profiling dep, not needed in the driver |
 
 ---
 
@@ -143,7 +141,7 @@ Verify only `tinywasm/*` (and optionally `golang.org/x/sys`) remain.
 
 ```bash
 go build ./...
-gotest
+go test ./...
 ```
 
 Coverage must remain ≥ 90%.
@@ -156,8 +154,7 @@ Coverage must remain ≥ 90%.
 |-----------|-------|
 | `google/uuid` absent from `go.mod` | ✅ |
 | `go-humanize`, `go-isatty`, `ncruces/go-strftime`, `bigfft` absent | ✅ |
-| `github.com/tinywasm/unixid` present if uuid was used | ✅ |
-| `google/pprof`, `golang.org/x/exp` absent | ✅ |
+| `golang.org/x/exp` absent | ✅ |
 | `golang.org/x/sys` decision documented | ✅ |
 | `go build ./...` succeeds | ✅ |
-| `gotest` passes with ≥ 90% coverage | ✅ |
+| `go test ./...` passes with ≥ 90% coverage | ✅ |

@@ -6,8 +6,6 @@
 ## Prerequisites
 
 ```bash
-# Install gotest (required — do NOT use go test directly)
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -102,7 +100,7 @@ Fix any remaining import or package issues before proceeding.
 ### Step 6 — Run tests
 
 ```bash
-gotest
+go test ./...
 ```
 
 Tests that existed before must still pass.
@@ -117,4 +115,4 @@ Tests that existed before must still pass.
 | `sqlite-wasm.go` deleted | ✅ |
 | No `modernc.org/sqlite` self-references in any `.go` file | ✅ |
 | `go build ./...` succeeds | ✅ |
-| `gotest` passes | ✅ |
+| `go test ./...` passes | ✅ |

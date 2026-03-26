@@ -7,7 +7,6 @@
 ## Prerequisites
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
 ```
 
 ---
@@ -26,8 +25,8 @@ before tackling the larger `modernc.org/libc` in Phase 6.
 |---------|------|------|
 | `modernc.org/mathutil` | Small | Math helpers (used by libc/sqlite) |
 | `modernc.org/memory` | Small | Memory management primitives |
-| `modernc.org/fileutil` | Small | File utility helpers |
 
+> **`modernc.org/fileutil` is NOT present in `go.mod` — skip it entirely.**
 > **Do NOT attempt `modernc.org/libc` in this phase.** It is large and complex — see Phase 6.
 
 ---
@@ -35,12 +34,12 @@ before tackling the larger `modernc.org/libc` in Phase 6.
 ## Strategy
 
 For each package:
-1. Locate its source (run `go env GOPATH` → `pkg/mod/modernc.org/<pkg>@<version>/`).
-2. Copy the needed `.go` files into a `driver/<pkg>/` sub-directory.
-3. **Rename the package declaration** to match the sub-directory name.
-4. Update import paths in `driver/*.go` files that used the original module.
-5. Run `go mod tidy` to confirm the dependency is removed.
-6. Run `gotest`.
+1. Locate its source (`go env GOMODCACHE` → `modernc.org/<pkg>@<version>/`).
+2. Copy the needed `.go` files into a **single subdirectory** inside `driver/` (e.g. `driver/mathutil/`). Do NOT nest further.
+3. Keep the original package name (e.g. `package mathutil`).
+4. Update import paths in `driver/*.go` to point to the local copy.
+5. Run `go mod tidy` to confirm the deps are removed from `go.mod`.
+6. Run `go test ./...`.
 
 ---
 
@@ -71,27 +70,24 @@ For each package (example with `mathutil`):
 
 ```bash
 PKG_VER="v1.7.1"  # adjust from go.mod
-SRC="$GOMOD/modernc.org/mathutil@$PKG_VER"
+SRC="$(go env GOMODCACHE)/modernc.org/mathutil@$PKG_VER"
 DEST="driver/mathutil"
 
 mkdir -p $DEST
-# Copy only non-test .go files
+# Copy non-test .go files into driver/mathutil/
 cp $SRC/*.go $DEST/
 rm -f $DEST/*_test.go
-
-# Rename package declaration
-sed -i 's|^package mathutil|package mathutil|' $DEST/*.go
-# (no rename needed if package name matches dir name)
 ```
+
+> Repeat the same for `modernc.org/memory` into `driver/memory/`.
 
 ### Step 4 — Update import paths in `driver/`
 
 ```bash
-# Example for mathutil
+# Redirect imports to local copies
 sed -i 's|modernc.org/mathutil|github.com/cdvelop/sqlite-wasm/driver/mathutil|g' driver/*.go
+sed -i 's|modernc.org/memory|github.com/cdvelop/sqlite-wasm/driver/memory|g' driver/*.go
 ```
-
-Repeat for each inlined package.
 
 ### Step 5 — Remove from `go.mod`
 
@@ -109,7 +105,7 @@ grep "modernc.org/mathutil\|modernc.org/memory\|modernc.org/fileutil" go.mod go.
 
 ```bash
 go build ./...
-gotest
+go test ./...
 ```
 
 Coverage must remain ≥ 90%.
@@ -122,7 +118,6 @@ Coverage must remain ≥ 90%.
 |-----------|-------|
 | `modernc.org/mathutil` absent from `go.mod` | ✅ |
 | `modernc.org/memory` absent from `go.mod` | ✅ |
-| `modernc.org/fileutil` absent from `go.mod` | ✅ |
-| `driver/mathutil/`, `driver/memory/`, `driver/fileutil/` exist | ✅ |
+| `driver/mathutil/` and `driver/memory/` exist (one level only) | ✅ |
 | `go build ./...` succeeds | ✅ |
-| `gotest` passes with ≥ 90% coverage | ✅ |
+| `go test ./...` passes with ≥ 90% coverage | ✅ |
