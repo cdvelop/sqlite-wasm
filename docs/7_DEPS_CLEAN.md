@@ -1,77 +1,84 @@
 # Phase 7: Clean Remaining External Dependencies
 
 > **Master Plan:** [PLAN.md](PLAN.md)
-> **Previous:** [6_DEPS_LIBC.md](6_DEPS_LIBC.md) ← must be complete
+> **Previous:** [6_DEPS_LIBC.md](6_DEPS_LIBC.md) ← Phase 6 skipped, `modernc.org/libc` accepted
 > **Next:** [8_MIGRATION.md](8_MIGRATION.md)
-
-## Prerequisites
-
-```bash
-```
-
----
 
 ## Goal
 
-Eliminate all remaining external dependencies that are not part of the `tinywasm/*`
-ecosystem. After this phase, `go.mod` only contains:
-- `github.com/tinywasm/unixid` (replaces `google/uuid`)
-- Standard library (`golang.org/x/sys` is evaluated below)
+Remove all direct dependencies from `go.mod` that are **not** `modernc.org/libc`,
+`tinywasm/*` packages, or transitive deps pulled in by libc. After this phase
+`go.mod` must have only these permitted direct deps:
+
+- `modernc.org/libc` (accepted CGo-free SQLite runtime)
+- `tinywasm/*` packages (ecosystem deps — always permitted)
+
+Indirect entries are managed by `go mod tidy` and are acceptable as long as they
+originate from the permitted deps above.
 
 ---
 
-## Remaining Deps After Phase 6
+## Current `go.mod` state (before this phase)
 
-Run to get the current state:
-```bash
-cat go.mod
 ```
+require (
+    github.com/remyoudompheng/bigfft        v0.0.0-...
+    golang.org/x/sys                        v0.37.0
+    modernc.org/libc                        v1.67.6
+)
 
-Likely candidates:
-
-| Package | Action |
-|---------|--------|
-| `github.com/google/uuid` | ❌ Remove — **not directly used in `driver/`**; likely dropped automatically by `go mod tidy` after Phase 6. Verify before any manual action. |
-| `github.com/dustin/go-humanize` | ❌ Remove — inline or eliminate usage |
-| `github.com/mattn/go-isatty` | ❌ Remove — inline (it's tiny) or eliminate |
-| `github.com/ncruces/go-strftime` | ❌ Remove — inline or use stdlib `time.Format` |
-| `github.com/remyoudompheng/bigfft` | ❌ Remove — inline from `modernc.org/mathutil` context |
-| `golang.org/x/exp` | ❌ Remove — replace usages with stdlib equivalents |
-| `golang.org/x/sys` | ⚠️ Evaluate — may be required for low-level OS calls; keep if unavoidable |
+require (
+    github.com/dustin/go-humanize           v1.0.1   // indirect
+    github.com/google/uuid                  v1.6.0   // indirect
+    github.com/mattn/go-isatty              v0.0.20  // indirect
+    github.com/ncruces/go-strftime          v1.0.0   // indirect
+    golang.org/x/exp                        v0.0.0-... // indirect
+    modernc.org/mathutil                    v1.7.1   // indirect
+    modernc.org/memory                      v1.11.0  // indirect
+)
+```
 
 ---
 
-## Steps
-
-### Step 1 — Audit actual usage (not just `go.mod`)
+## Step 1 — Audit which deps `driver/` actually imports directly
 
 ```bash
-# Find which driver/ files actually USE each dep
-grep -r "go-humanize\|go-isatty\|strftime\|bigfft\|google/uuid\|golang.org/x/exp" \
-     driver/ --include="*.go"
+grep -rh '"' driver/*.go driver/vfs/*.go driver/vtab/*.go 2>/dev/null \
+    | grep -oP '"[^"]*"' | sort -u \
+    | grep -v 'modernc.org/libc\|^"[a-z]' \
+    | grep -v 'github.com/cdvelop/sqlite-wasm'
 ```
 
-If a dep appears only in `go.sum` but not used in `driver/*.go`, it was already
-pulled transitively and will be removed automatically by `go mod tidy` after
-previous phases. No action needed.
-
-### Step 2 — Replace `google/uuid` → `tinywasm/unixid`
-
-If any usage exists in `driver/*.go`:
+For each dep found, check whether it is also imported by libc itself:
 
 ```bash
-grep -r "google/uuid\|uuid\.New\|uuid\.UUID" driver/ --include="*.go"
+GOMOD=$(go env GOMODCACHE)
+LIBC_VER=$(grep "modernc.org/libc" go.mod | awk '{print $2}')
+grep -r "dustin\|go-isatty\|strftime\|bigfft\|google/uuid\|golang.org/x/exp" \
+    "$GOMOD/modernc.org/libc@$LIBC_VER" --include="*.go" -l
 ```
 
-Replace:
+Deps that appear in libc source are transitive — `go mod tidy` handles them.
+Deps that appear **only** in `driver/` code are direct and must be removed.
 
-| Old (`google/uuid`) | New (`tinywasm/unixid`) |
-|---------------------|------------------------|
-| `uuid.New().String()` | `idHandler.GetNewID()` |
-| `uuid.UUID` field type | `string` |
-| `uuid.Must(uuid.Parse(s))` | `idHandler.Validate(s)` |
+---
 
-Initialization:
+## Step 2 — Remove each direct dep not needed by libc
+
+For each dep confirmed as NOT used by `modernc.org/libc`:
+
+### `github.com/google/uuid`
+
+```bash
+grep -r "google/uuid" driver/ --include="*.go"
+```
+
+If used: replace with `github.com/tinywasm/unixid` (permitted ecosystem dep):
+
+```bash
+go get github.com/tinywasm/unixid
+```
+
 ```go
 import "github.com/tinywasm/unixid"
 
@@ -82,62 +89,108 @@ if err != nil {
 id := idHandler.GetNewID()
 ```
 
-Add to `go.mod`:
+| Old (`google/uuid`) | New (`tinywasm/unixid`) |
+|---------------------|------------------------|
+| `uuid.New().String()` | `idHandler.GetNewID()` |
+| `uuid.UUID` field type | `string` |
+| `uuid.Must(uuid.Parse(s))` | `idHandler.Validate(s)` |
+
+### `github.com/dustin/go-humanize`
+
 ```bash
-go get github.com/tinywasm/unixid
+grep -r "go-humanize\|humanize\." driver/ --include="*.go"
 ```
 
-### Step 3 — Inline tiny utility packages
+If used (typically `humanize.Bytes(n)`): replace inline:
 
-For packages with minimal usage (< 5 functions used):
-
-**`go-isatty`** — usually just `isatty.IsTerminal(fd)`:
 ```go
-// Replace with syscall-based check (linux/amd64 example):
-func isTerminal(fd uintptr) bool {
-    var t syscall.Termios
-    _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, fd,
-        syscall.TCGETS, uintptr(unsafe.Pointer(&t)), 0, 0, 0)
-    return err == 0
-}
-```
-
-**`go-humanize`** — usually `humanize.Bytes(n)`:
-```go
-// Replace with stdlib fmt:
 func humanBytes(n uint64) string {
     switch {
     case n >= 1<<30: return fmt.Sprintf("%.1f GB", float64(n)/(1<<30))
     case n >= 1<<20: return fmt.Sprintf("%.1f MB", float64(n)/(1<<20))
     case n >= 1<<10: return fmt.Sprintf("%.1f KB", float64(n)/(1<<10))
-    default: return fmt.Sprintf("%d B", n)
+    default:         return fmt.Sprintf("%d B", n)
     }
 }
 ```
 
-### Step 4 — Evaluate `golang.org/x/sys`
+### `github.com/mattn/go-isatty`
+
+```bash
+grep -r "go-isatty\|isatty\." driver/ --include="*.go"
+```
+
+If used (typically `isatty.IsTerminal(fd)`): replace with stdlib `syscall`:
+
+```go
+import "syscall"
+
+func isTerminal(fd uintptr) bool {
+    _, _, err := syscall.Syscall(syscall.SYS_IOCTL, fd, syscall.TCGETS, 0)
+    return err == 0
+}
+```
+
+### `github.com/ncruces/go-strftime`
+
+```bash
+grep -r "go-strftime\|strftime\." driver/ --include="*.go"
+```
+
+If used: replace with `time.Format` using the equivalent Go layout string.
+
+### `github.com/remyoudompheng/bigfft`
+
+```bash
+grep -r "bigfft" driver/ --include="*.go"
+```
+
+If `driver/` code does NOT import it directly (it may be a transitive dep of
+`modernc.org/mathutil` which libc uses), run `go mod tidy` after other removals —
+it may disappear on its own or become an `// indirect` entry, which is acceptable.
+
+### `golang.org/x/exp`
+
+```bash
+grep -r "golang.org/x/exp" driver/ --include="*.go"
+```
+
+If used: replace with stdlib equivalents (slices, maps packages in Go 1.21+).
+
+### `golang.org/x/sys`
 
 ```bash
 grep -r "golang.org/x/sys" driver/ --include="*.go"
 ```
 
-- If used only in the inlined libc files: accept it as a remaining dep (low-level OS interface).
-- If used directly by our logic: replace with `syscall` stdlib equivalent.
+If only in inlined/generated files or needed transitively by libc: keep it as
+`// indirect` — this is acceptable. Do NOT remove if it breaks the build.
 
-Document the decision in `driver/README.md`:
-> `golang.org/x/sys` is retained as an indirect dependency required by the
-> embedded libc layer for OS-specific system call interfaces.
+---
 
-### Step 5 — Run `go mod tidy`
+## Step 3 — Run `go mod tidy` and verify
 
 ```bash
 go mod tidy
 cat go.mod
 ```
 
-Verify only `tinywasm/*` (and optionally `golang.org/x/sys`) remain.
+Expected result — only one direct dep:
 
-### Step 6 — Build and test
+```
+require modernc.org/libc vX.Y.Z
+
+require (
+    // indirect entries managed by go mod tidy — all must originate from modernc.org/libc
+    ...
+)
+```
+
+If any non-libc direct dep still appears, return to Step 2 and eliminate it.
+
+---
+
+## Step 4 — Build and test
 
 ```bash
 go build ./...
@@ -152,9 +205,8 @@ Coverage must remain ≥ 90%.
 
 | Criterion | Check |
 |-----------|-------|
-| `google/uuid` absent from `go.mod` | ✅ |
-| `go-humanize`, `go-isatty`, `ncruces/go-strftime`, `bigfft` absent | ✅ |
-| `golang.org/x/exp` absent | ✅ |
-| `golang.org/x/sys` decision documented | ✅ |
+| `go.mod` direct deps are only `modernc.org/libc` and/or `tinywasm/*` | ✅ |
+| No non-permitted direct deps remain (`google/*`, `dustin/*`, `mattn/*`, etc.) | ✅ |
 | `go build ./...` succeeds | ✅ |
 | `go test ./...` passes with ≥ 90% coverage | ✅ |
+| `driver/README.md` documents `modernc.org/libc` as accepted dep | ✅ |

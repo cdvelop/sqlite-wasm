@@ -139,8 +139,9 @@ automatically on blank import:
 
 ## Dependencies
 
-After full refinement, only `golang.org/x/sys` may remain as an indirect
-low-level OS dep (required by the embedded libc layer).
+`modernc.org/libc` is an accepted direct dependency (CGo-free C stdlib emulation
+required by the SQLite engine). All other deps are indirect entries managed
+automatically by `go mod tidy`.
 
 ## Origin
 
