@@ -8,12 +8,12 @@
 package driver
 
 import (
-	"golang.org/x/sys/unix"
+	"syscall"
 )
 
 func setMaxOpenFiles(n int64) error {
-	var rLimit unix.Rlimit
+	var rLimit syscall.Rlimit
 	rLimit.Max = uint64(n)
 	rLimit.Cur = uint64(n)
-	return unix.Setrlimit(unix.RLIMIT_NOFILE, &rLimit)
+	return syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 }
