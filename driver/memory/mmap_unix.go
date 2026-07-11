@@ -9,8 +9,8 @@
 package memory
 
 import (
-	"golang.org/x/sys/unix"
 	"os"
+	"syscall"
 	"unsafe"
 )
 
@@ -22,7 +22,7 @@ var (
 )
 
 func unmap(addr uintptr, size int) error {
-	return unix.Munmap((*[1 << 30]byte)(unsafe.Pointer(addr))[:size:size])
+	return syscall.Munmap((*[1 << 30]byte)(unsafe.Pointer(addr))[:size:size])
 }
 
 // pageSize aligned.
@@ -30,7 +30,7 @@ func mmap(size int) (uintptr, int, error) {
 	size = roundup(size, osPageSize)
 	// Ask for more so we can align the result at a pageSize boundary
 	n := size + pageSize
-	data, err := unix.Mmap(-1, 0, n, unix.PROT_READ|unix.PROT_WRITE, unix.MAP_PRIVATE|unix.MAP_ANON)
+	data, err := syscall.Mmap(-1, 0, n, syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_PRIVATE|syscall.MAP_ANON)
 	if err != nil {
 		return 0, 0, err
 	}

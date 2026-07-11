@@ -5,8 +5,8 @@
 package memory
 
 import (
-	syscall "golang.org/x/sys/windows"
 	"os"
+	"syscall"
 )
 
 const (

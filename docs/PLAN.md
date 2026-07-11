@@ -1,46 +1,74 @@
-# PLAN: Driver Encapsulation & Dependency Cleanup
+# PLAN: Remaining Work — Test Fix + Migration
 
 ## Purpose
 
-The end goal is to finalize the self-contained `driver/` package so it can be copied verbatim into `tinywasm/sqlite/driver/`. The `go.mod` must keep only `modernc.org/libc` and `tinywasm/*` packages as direct dependencies. All other third-party dependencies must be eliminated.
+Finalize the `driver/` package and migrate it to `tinywasm/sqlite/driver/`.
+`go.mod` is already clean: `modernc.org/libc` is the only direct dependency.
+Two tasks remain: fix a failing test, then run the migration.
 
-> **Decision (2026-05-31):** Inlining `modernc.org/libc` was attempted in Phase 6 but deferred — the library has 2000+ platform-specific files and is too large to inline safely. It is accepted as a permanent direct dependency. See [6_DEPS_LIBC.md](6_DEPS_LIBC.md) for the documented decision.
-
-> **IMPORTANT FOR THE AGENT:** Execute all pending phases in sequential order. For each phase, read its corresponding markdown document in the `docs/` directory for detailed instructions. After completing a phase, run `go test ./...` to ensure stability and proceed to the next phase. Completion is reached once Phase 8 is successfully finished.
-> Note: Completed phases (Phases 3, 4, and 5) have been archived to [PLAN_COMPLETED.md](PLAN_COMPLETED.md). Phase 6 has been formally skipped — start at Phase 7.
-
-## Execution Roadmap for Pending Phases
-
-| Phase | Script / File | Nature | Target | Status |
-|-------|---------------|--------|--------|--------|
-| **6** | [6_DEPS_LIBC.md](6_DEPS_LIBC.md) | ~~Inline `modernc.org/libc`~~ — **SKIPPED** (accepted dep) | `modernc.org/libc` stays | ✅ Decided |
-| **7** | [7_DEPS_CLEAN.md](7_DEPS_CLEAN.md) | Remove all deps NOT required by `modernc.org/libc` | Only `modernc.org/libc` + its transitives | 🔲 Pending (Start here!) |
-| **8** | [8_MIGRATION.md](8_MIGRATION.md) | Migration script + dry-run | ✅ Deployment ready | 🔲 Pending |
+> **IMPORTANT FOR THE AGENT:** Execute phases in order. After each phase run
+> `go test ./...` to confirm stability before proceeding.
+>
+> **RE-CHECK (2026-07-10):** The previous dispatch of this plan did NOT apply
+> either pending phase — `tests/backup_test.go:28` still calls `src.Conn(nil)`
+> (verified: `go test ./...` still panics with the exact deadlock described in
+> Phase A, after a 90s timeout) and `tinywasm/sqlite/driver/` does not exist
+> (verified: `tinywasm/sqlite/go.mod` still depends on `modernc.org/sqlite`
+> directly, and `git status` in that repo is clean — no migration was ever
+> run). `scripts/migrate_to_tinywasm.sh` and `driver/README.md` DO already
+> exist in this repo, so Phase B's Step 1 and Step 3 are done — only the
+> actual dry-run + real migration (Steps 2, 4-6) remain. Start again at
+> Phase A; do not skip it because the script/README already exist.
 
 ---
 
-## Pending Phases Details
+## Execution Roadmap
 
-### Phase 6: ~~Inline `modernc.org/libc`~~ — SKIPPED
-- **Decision:** `modernc.org/libc` is accepted as a permanent direct dependency. 2000+ platform-specific files make inlining impractical and a maintenance burden.
-- **Reference:** [6_DEPS_LIBC.md](6_DEPS_LIBC.md) (documents the decision)
-- **Status:** ✅ Decided — skip, proceed to Phase 7
+| Phase | File | Nature | Status |
+|-------|------|--------|--------|
+| **A** | [A_FIX_TESTS.md](A_FIX_TESTS.md) | Fix `TestBackup` deadlock | 🔲 Pending (Start here!) |
+| **B** | [8_MIGRATION.md](8_MIGRATION.md) | Migration script dry-run + copy to `tinywasm/sqlite` | 🔲 Pending (script + README already exist; run Steps 2, 4-6) |
 
-### Phase 7: Clean Remaining External Dependencies
-- **Goal:** Remove all deps that are NOT `modernc.org/libc` or its transitive requirements. After this phase `go.mod` contains only `modernc.org/libc` (direct) plus whatever it pulls in indirectly via `go mod tidy`; no other hand-authored direct deps remain.
-- **Reference:** [7_DEPS_CLEAN.md](7_DEPS_CLEAN.md)
-- **Status:** 🔲 Pending (Start here!)
+---
 
-### Phase 8: Migration Script & Final Validation
-- **Goal:** Write & validate `scripts/migrate_to_tinywasm.sh`, perform dry-runs, and prepare final copy to `tinywasm/sqlite`.
-- **Reference:** [8_MIGRATION.md](8_MIGRATION.md)
-- **Status:** 🔲 Pending
+## Context: What Was Already Done
+
+| Phase | Result |
+|-------|--------|
+| 3, 4, 5 | Complete — archived in [PLAN_COMPLETED.md](PLAN_COMPLETED.md) |
+| 6 | Skipped — `modernc.org/libc` accepted as permanent dep ([6_DEPS_LIBC.md](6_DEPS_LIBC.md)) |
+| 7 | Deps clean ✅ — `go.mod` has one direct dep (`modernc.org/libc`), `go build ./...` passes ✅ |
+| 8 (partial) | `scripts/migrate_to_tinywasm.sh` and `driver/README.md` exist, but were never run against the real `tinywasm/sqlite` repo |
+
+---
+
+## Phase A: Fix `TestBackup` Deadlock
+
+- **File:** [A_FIX_TESTS.md](A_FIX_TESTS.md)
+- **Problem:** `go test ./...` panics with a deadlock in `tests/backup_test.go:28`.
+  `db.Conn()` is called after `db.Close()`, causing `database/sql` to panic.
+- **Status:** 🔲 Pending — **NOT applied**. `tests/backup_test.go:28` still has
+  `src.Conn(nil)` with no `"context"` import. Confirmed reproducing the exact
+  panic trace from `A_FIX_TESTS.md` on 2026-07-10.
+
+## Phase B: Migration Script & Final Validation
+
+- **File:** [8_MIGRATION.md](8_MIGRATION.md)
+- **Goal:** Run `scripts/migrate_to_tinywasm.sh` dry-run, then copy `driver/` to
+  `tinywasm/sqlite/driver/` and validate with `go build ./...` + `go test ./...`.
+- **Status:** 🔲 Pending — Step 1 (write script) and Step 3 (write README) are
+  already done. Steps 2 (dry-run), 4 (final local `go test ./...`, blocked on
+  Phase A), 5 (run migration into `/home/cesar/Dev/Project/tinywasm/sqlite`),
+  and 6 (verify in target repo) were never executed —
+  `/home/cesar/Dev/Project/tinywasm/sqlite/driver/` does not exist and that
+  repo's `go.mod` still depends directly on `modernc.org/sqlite`, not the
+  migrated driver package.
 
 ---
 
 ## Development Rules
 
-- **Max 500 lines per file** (applies only to new hand-written files, not auto-generated sources).
+- **Max 500 lines per file** (new hand-written files only).
 - **No external assertion libraries.** Standard `testing` package only.
-- **No global state.** Use dependency injection via interfaces.
+- **No global state.** Dependency injection via interfaces.
 - Coverage target: **≥ 90%** (verify with `go test -cover`).
