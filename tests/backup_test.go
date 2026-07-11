@@ -3,6 +3,7 @@
 package driver_test
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 
@@ -25,7 +26,7 @@ func TestBackup(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conn, err := src.Conn(nil)
+	conn, err := src.Conn(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
